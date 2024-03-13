@@ -25,6 +25,7 @@ dev = [
     "pytest-cov",
     "pytest-sugar",
     "streamlit",
+    "watchdog",
     "seaborn",
     "plotly",
     "scipy",
