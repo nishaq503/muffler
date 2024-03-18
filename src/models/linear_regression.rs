@@ -1,11 +1,13 @@
 //! A Denoising model based on Linear Regression.
 
+use serde::{Deserialize, Serialize};
 use smartcore::{
     linalg::basic::matrix::DenseMatrix,
     linear::linear_regression::{LinearRegression, LinearRegressionParameters},
 };
 
 /// A model for denoising time-series data based on linear regression.
+#[derive(Serialize, Deserialize)]
 pub struct LRModel {
     /// The linear regression model.
     models: Vec<LinearRegression<f32, f32, DenseMatrix<f32>, ndarray::Array1<f32>>>,
@@ -27,6 +29,10 @@ impl
             models,
             window_size,
         }
+    }
+
+    fn name(&self) -> String {
+        format!("muffler-linear_regression-{}", self.window_size)
     }
 
     fn models(

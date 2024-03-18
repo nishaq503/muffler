@@ -1,7 +1,10 @@
 //! A model that relies on classical ML techniques to denoise time-series data.
 
+use std::path::{Path, PathBuf};
+
 use ndarray::prelude::*;
 use rayon::prelude::*;
+use serde::{Deserialize, Serialize};
 use smartcore::{
     api::SupervisedEstimator,
     linalg::basic::{arrays::Array2, matrix::DenseMatrix},
@@ -13,13 +16,17 @@ use smartcore::{
 ///
 /// * `M`: The type of the model.
 /// * `P`: The type of the model parameters.
-pub trait Classical<M, P>: Sized + Send + Sync
+pub trait Classical<M, P>:
+    Sized + Send + Sync + Serialize + for<'de> Deserialize<'de>
 where
     M: SupervisedEstimator<DenseMatrix<f32>, Array1<f32>, P> + Send + Sync,
     P: Clone + Send + Sync,
 {
     /// Creates a new model.
     fn new(models: Vec<M>, window_size: usize) -> Self;
+
+    /// Returns a name for the model, which can be used for saving and loading.
+    fn name(&self) -> String;
 
     /// Returns the inner models.
     fn models(&self) -> &[M];
@@ -95,5 +102,81 @@ where
 
         let out_shape = (samples.len_of(Axis(0)), samples.len_of(Axis(1)));
         Ok(crate::data::reassemble(predicted, out_shape, &starts))
+    }
+
+    /// Saves the model to a file.
+    ///
+    /// # Parameters
+    ///
+    /// * `path_to_dir`: The path to the directory to save the model to.
+    ///
+    /// # Errors
+    ///
+    /// * If the model cannot be saved.
+    /// * If the directory does not exist or is not writable.
+    ///
+    /// # Returns
+    ///
+    /// The path to the saved model.
+    fn save(&self, path_to_dir: &Path) -> Result<PathBuf, String> {
+        if !path_to_dir.exists() {
+            return Err(format!(
+                "The directory '{}' does not exist.",
+                path_to_dir.display()
+            ));
+        }
+        if !path_to_dir.is_dir() {
+            return Err(format!(
+                "The path '{}' is not a directory.",
+                path_to_dir.display()
+            ));
+        }
+        if !path_to_dir
+            .metadata()
+            .map(|m| m.permissions().readonly())
+            .unwrap_or(false)
+        {
+            return Err(format!(
+                "The directory '{}' is not writable.",
+                path_to_dir.display()
+            ));
+        }
+
+        let path = path_to_dir.join(self.name());
+        let mut file = std::fs::File::create(&path).map_err(|e| e.to_string())?;
+        bincode::serialize_into(&mut file, self).map_err(|e| e.to_string())?;
+        Ok(path)
+    }
+
+    /// Loads a model from a file.
+    ///
+    /// # Parameters
+    ///
+    /// * `path`: The path to the file to load the model from, as produced by `save`.
+    ///
+    /// # Errors
+    ///
+    /// * If the model cannot be loaded.
+    /// * If the file does not exist or is not readable.
+    ///
+    /// # Returns
+    ///
+    /// The loaded model.
+    fn load(path: &Path) -> Result<Self, String> {
+        if !path.exists() {
+            return Err(format!("The file '{}' does not exist.", path.display()));
+        }
+        if !path.is_file() {
+            return Err(format!("The path '{}' is not a file.", path.display()));
+        }
+        if !path
+            .metadata()
+            .map(|m| m.permissions().readonly())
+            .unwrap_or(false)
+        {
+            return Err(format!("The file '{}' is not readable.", path.display()));
+        }
+        let file = std::fs::File::open(path).map_err(|e| e.to_string())?;
+        bincode::deserialize_from(file).map_err(|e| e.to_string())
     }
 }

@@ -1,5 +1,6 @@
 //! A Denoising model based on Linear Regression.
 
+use serde::{Deserialize, Serialize};
 use smartcore::{
     linalg::basic::matrix::DenseMatrix,
     tree::decision_tree_regressor::{
@@ -8,6 +9,7 @@ use smartcore::{
 };
 
 /// A model for denoising time-series data based on linear regression.
+#[derive(Serialize, Deserialize)]
 pub struct DTModel {
     /// The linear regression model.
     models:
@@ -32,6 +34,10 @@ impl
             models,
             window_size,
         }
+    }
+
+    fn name(&self) -> String {
+        format!("muffler-decision_tree-{}", self.window_size)
     }
 
     fn models(
