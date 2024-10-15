@@ -78,7 +78,7 @@ def random_signals(  # noqa: PLR0913
         clean_signals.append(signal)
 
         # Add some noise and multiply element-wise by the signal
-        conditional_noise = numpy.sqrt(numpy.abs(signal))
+        conditional_noise = numpy.abs(signal)
         noise = rng.normal(0, noise_std, x.shape) * conditional_noise
         noisy_signals.append(signal + noise)
 
