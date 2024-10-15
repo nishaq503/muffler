@@ -10,17 +10,17 @@ import streamlit as st
 
 st.title("Muffler")
 
-sample_num = 200
+sample_num = 100
 sample_len = 1024 * 4
 
 freq_choices = [
     0.25,
     0.5,
     1.0,
-    *list(map(float, range(2, 20, 2))),
-    *list(map(float, range(20, 50, 5))),
+    *list(map(float, range(2, 10, 2))),
+    *list(map(float, range(10, 41, 5))),
 ]
-amp_range = (0.5, 5.0)
+amp_range = (1.0, 10.0)
 offset_range = (-0.25 * numpy.pi, 0.25 * numpy.pi)
 
 x = numpy.linspace(0, 2 * numpy.pi, sample_len)
@@ -30,13 +30,13 @@ clean, noisy = data.random_signals(
     freq_choices=freq_choices,
     amp_range=amp_range,
     off_range=offset_range,
-    noise_std=2.0,
+    noise_std=0.25,
     add_linear_trend=True,
 )
 
 # Run the denoising algorithms
 window_size = 100
-stride = 25
+stride = 20
 
 st.write(f"Running the denoising algorithm with {window_size = } and {stride = } ...")
 start = time.perf_counter()
@@ -49,7 +49,7 @@ st.write(
 
 # plot the sine wave
 st.write("Plotting the signals ...")
-figs, clean_v_noisy, clean_v_denoised = plots.plot_signals(5, noisy, denoised, clean)
+figs, clean_v_noisy, clean_v_denoised = plots.plot_signals(1, noisy, denoised, clean)
 for fig in figs:
     st.plotly_chart(fig)
 
