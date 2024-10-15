@@ -44,7 +44,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [x64, x86]
+        target: [x64]  # , x86  # 32-bit windows is broken. https://github.com/PyO3/rust-numpy/issues/448
         python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
       - uses: actions/checkout@v4
