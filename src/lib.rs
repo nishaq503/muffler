@@ -22,7 +22,7 @@ pub(crate) mod models;
 use models::{Classical, DTModel, LRModel};
 
 use ndarray::prelude::*;
-use numpy::{IntoPyArray, PyArray2, PyReadonlyArray2};
+use numpy::{prelude::*, PyArray2, PyReadonlyArray2};
 use pyo3::{exceptions::PyValueError, prelude::*};
 use smartcore::{
     api::SupervisedEstimator, linalg::basic::matrix::DenseMatrix,
