@@ -1,0 +1,48 @@
+name: Test Workflows
+
+on:
+  push:
+    paths:
+      - '.github/workflows/**'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+
+jobs:
+  # Validate workflow syntax
+  validate-workflows:
+    name: Validate Workflow Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate workflow files
+        run: |
+          for workflow in .github/workflows/*.yml .github/workflows/*.yaml; do
+            if [[ -f "$workflow" ]]; then
+              echo "Validating $workflow"
+              # Basic YAML syntax check
+              python -c "import yaml; yaml.safe_load(open('$workflow'))"
+              echo "✓ $workflow is valid YAML"
+            fi
+          done
+
+  # Test that the main CI workflow would run
+  test-ci-dry-run:
+    name: Test CI Workflow (Dry Run)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup development environment
+        uses: ./.github/actions/setup-dev-env
+        with:
+          rust-components: 'rustfmt,clippy'
+          cache-key-suffix: 'test-workflows'
+
+      - name: Test basic commands
+        run: |
+          cargo --version
+          rustc --version
+          uv --version
+          echo "✓ All tools available"

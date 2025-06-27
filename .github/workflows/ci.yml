@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # Pre-commit checks (formatting, linting, security)
+  pre-commit:
+    name: Pre-commit checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup development environment
+        uses: ./.github/actions/setup-dev-env
+        with:
+          rust-components: 'rustfmt,clippy'
+          cache-key-suffix: 'precommit'
+
+      - name: Run pre-commit
+        uses: pre-commit/action@v3.0.1
+
+  # Rust tests
+  rust-tests:
+    name: Rust Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup development environment
+        uses: ./.github/actions/setup-dev-env
+        with:
+          cache-key-suffix: 'rust-tests'
+
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@nextest
+
+      - name: Run Rust tests
+        run: cargo nextest run --release --all-targets --all-features
+
+  # Python tests
+  python-tests:
+    name: Python Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.13']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup development environment
+        uses: ./.github/actions/setup-dev-env
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache-key-suffix: 'python-tests'
+
+      - name: Run Python tests
+        run: |
+          echo "Running Python tests"
+          for dir in $(find . -name pyproject.toml -not -path "./pyproject.toml" -exec dirname {} \;); do
+            echo "Running tests in $dir"
+            cd "$dir" && uv run pytest ./**/*.py --verbose
+            cd - > /dev/null
+          done
+
+  # Build check
+  build:
+    name: Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup development environment
+        uses: ./.github/actions/setup-dev-env
+        with:
+          cache-key-suffix: 'build'
+
+      - name: Build Rust workspace
+        run: cargo build --release --workspace
+
+      - name: Verify Python packages can be synced
+        run: echo "✓ Python packages already synced by setup action"

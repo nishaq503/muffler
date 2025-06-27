@@ -1,0 +1,124 @@
+\section{Definitions}
+\label{sec:definitions}
+
+We set up the problem with some definitions.
+
+
+\begin{definition}[Instance, Clause, Literal, Variable]
+\label{def:instance}
+    A SAT instance is a conjunction of clauses.
+    Each clause is a disjunction of literals.
+    Each literal is either a variable or the negation of a variable.
+\end{definition}
+
+\begin{definition}[Size]
+\label{def:size}
+    A SAT instance of size $(m, n, k)$ contains $m$ variables and $n$ clauses, and each clause contains at most $k$ literals.
+\end{definition}
+
+\begin{definition}[Unit Clause]
+\label{def:unit-clause}
+    A unit clause consists of only one literal.
+    Such a clause can always be satisfied by setting that literal to $True$.
+\end{definition}
+
+\begin{definition}[Pure Literal]
+\label{def:pure-literal}
+    A pure literal is one whose negation never appears in the instance.
+    All clauses containing a pure literal can be satisfied by setting that literal to $True$.
+\end{definition}
+
+\begin{definition}[Cascade]
+\label{def:cascade}
+    A cascade is an assignment made due to unit clauses or pure literals.
+    A cascade can cause more cascades, so several cascades can be chained into a single cascade.
+\end{definition}
+
+\begin{definition}[Certificate]
+\label{def:certificate}
+    A certificate ($\rchi$) is a set of mappings from variables $x_i$ to truth values such that the set of assignments satisfies a given instance.
+    \begin{align*}
+        \rchi :~ x_i \mapsto \{ True,~ False \}~ \forall i \in \{ 1 \ldots m \}
+        \mid \Phi(\rchi) = True
+    \end{align*}
+\end{definition}
+
+\begin{definition}[Satisfiable, Unsatisfiable, Undecided]
+\label{def:satisfiability}
+    If an instance has at least one certificate then the instance is \textit{satisfiable}.
+    Otherwise, the instance is \textit{unsatisfiable}.
+    \begin{align*}
+        \Phi~ is~ satisfiable~ & \Leftrightarrow~ \exists~ \rchi \mid \Phi(\rchi) = True \\
+        \Phi~ is~ unsatisfiable~ & \Leftrightarrow~ \lnot \exists~ \rchi \mid \Phi(\rchi) = True
+    \end{align*}
+
+    If after assigning truth values to some, but not all, variables and evaluating the instance we find that there are some clauses left whose truth value is ambiguous, we say that the instance is, as yet, \textit{undecided}.
+\end{definition}
+
+Note that a certificate may not need to specify a mapping for every variable in an instance.
+Some instances can be satisfied by assigning a mapping for some, but not all, of the variables in that instance.
+
+\begin{definition}[Min-Certificate]
+\label{def:min-certificate}
+    A min-certificate is a special case of a certificate with the property that removing even one mapping from the certificate leaves the instance undecided.
+\end{definition}
+
+For example:
+\begin{align*}
+    \phi & = (x_1 \lor \lnot x_2 \lor x_3) \land (\lnot x_2 \land \lnot x_3 \land x_4)
+\end{align*}
+can be satisfied by $ \rchi = \{ x_2 \mapsto False \} $.
+This leaves three variables unmapped, which leads to $2^3$ full certificates.
+$\rchi$ is a min-certificate for the SAT instance $\Phi$.
+
+There are other possible min-certificates for this SAT instance.
+For example:
+\begin{itemize}
+    \item $\{ x_1 \mapsto True,~ x_3 \mapsto False \}$ which leads to $2^2$ full certificates.
+    \item $\{ x_3 \mapsto True,~ x_4 \mapsto True \}$ which leads to $2^2$ full certificates.
+\end{itemize}
+
+For the remainder of this paper, the term certificate will be overloaded with this definition of a min-certificate.
+
+\begin{definition}[Child Instances]
+\label{def:child-instances}
+    Given an instance $\Phi$ with more than one clause, we define two instances, $\phi_{left}$ and $\phi_{right}$ such that every clause from $\Phi$ is either in $\phi_{left}$ or $\phi_{right}$ but not in both.
+    \begin{align*}
+        \phi_{left},~ \phi_{right} \subset \Phi
+        \mid \Phi = \phi_{left} \land \phi_{right},~
+        \phi_{left} \cap \phi_{right} = \emptyset
+    \end{align*}
+
+    $\phi_{left}$ and $\phi_{right}$ are child instances with $\Phi$ as the parent instance.
+    $\phi_{left}$ and $\phi_{right}$ are siblings to each other.
+\end{definition}
+
+\begin{definition}[Child Certificates]
+\label{def:child-certificates}
+    If $\Phi$ is satisfiable then so are its child instances $\phi_{left}$ and $\phi_{right}$.
+    In other words, if $\Phi$ has a certificate then each child instance has at least one certificate.
+    We call the certificates for child instances child certificates.
+\end{definition}
+
+\begin{definition}[Compatibility]
+\label{def:compatibility}
+    Given two instances, $\phi_1$ and $\phi_2$, and their respective certificates, $\rchi_1$ and $\rchi_2$, we define compatibility in the following way.
+    \begin{align*}
+        & \rchi_1~ is~ compatible~ with~ \rchi_2 \\
+        \Leftrightarrow~ & \forall x_j \in \rchi_1 \cap \rchi_2, \rchi_1(x_j) \equiv \rchi_2(x_j) \\
+        and~ & \phi_1(\rchi_2)~ is~ either~ True~ or~ Undecided \\
+        and~ & \phi_2(\rchi_1)~ is~ either~ True~ or~ Undecided \\
+        and~ & \Phi(\rchi_1 \cup \rchi_2)~ is~ True,~ where~ \Phi = \phi_1 \land \phi_2
+    \end{align*}
+\end{definition}
+
+\begin{definition}[Pure Instance]
+    \label{def:pure-instance}
+    A pure instance, $\phi_{pure}$, is a special case of an instance in which all clauses have a variable in common.
+    \begin{align*}
+        let~ \phi_{base} & \coloneqq C_1 \land C_2 \land \ldots \land C_m \\
+        s.t.~ either~ x_j & \in C_i~ or~ \lnot x_j \in C_i \\
+        for~ some~ j & \in \{ 1 \dots n \} \\
+        for~ all~ i & \in \{ 1 \dots m \}
+    \end{align*}
+\end{definition}

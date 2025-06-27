@@ -1,0 +1,31 @@
+[project]
+name = "muffler-workspace"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = []
+
+[tool.uv]
+managed = true
+dev-dependencies = [
+    "isort>=6.0.1",
+    "mypy>=1.15.0",
+    "pip-audit>=2.7.0",
+    "pre-commit>=4.2.0",
+    "pytest>=8.3.5",
+    "pytest-cov>=6.1.1",
+    "pytest-sugar>=1.0.0",
+    "pytest-xdist>=3.6.1",
+    "ruff>=0.11.10",
+]
+package = false
+
+[tool.uv.workspace]
+members = [
+    "py/muffler",
+]
+
+[tool.uv.sources]
+merge-sat = { workspace = true }
+
+[tool.mypy]
+disable_error_code = ["import-untyped"]
