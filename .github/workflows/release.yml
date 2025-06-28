@@ -82,11 +82,11 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            asset_name="merge-sat-${{ matrix.target }}.zip"
-            7z a "$asset_name" ./target/${{ matrix.target }}/release/merge-sat.exe
+            asset_name="muffler-${{ matrix.target }}.zip"
+            7z a "$asset_name" ./target/${{ matrix.target }}/release/muffler.exe
           else
-            asset_name="merge-sat-${{ matrix.target }}.tar.gz"
-            tar -czf "$asset_name" -C ./target/${{ matrix.target }}/release merge-sat
+            asset_name="muffler-${{ matrix.target }}.tar.gz"
+            tar -czf "$asset_name" -C ./target/${{ matrix.target }}/release muffler
           fi
           echo "ASSET_NAME=$asset_name" >> $GITHUB_ENV
 

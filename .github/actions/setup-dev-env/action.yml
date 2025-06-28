@@ -1,5 +1,5 @@
 name: 'Setup Development Environment'
-description: 'Sets up Python, Rust, and uv for the merge-sat project'
+description: 'Sets up Python, Rust, and uv for the project'
 
 inputs:
   python-version:

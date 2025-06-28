@@ -55,8 +55,7 @@ repos:
         additional_dependencies:
           - typer
           - pytest
-        files: \.py$
-        exclude: ^(target/|\.git/)
+          - numpy
 
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2

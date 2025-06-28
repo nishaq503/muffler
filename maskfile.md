@@ -1,4 +1,4 @@
-# Tasks for the `merge-sat` project
+# Tasks for the project
 
 ## build
 

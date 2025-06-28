@@ -1,6 +1,6 @@
 # GitHub Actions Workflows
 
-This directory contains the CI/CD workflows for the merge-sat project.
+This directory contains the CI/CD workflows for the project.
 
 ## Workflows
 
@@ -66,9 +66,9 @@ Meta-workflow for testing the workflows themselves:
 Add these to your main README.md:
 
 ```markdown
-[![CI](https://github.com/USERNAME/merge-sat/workflows/CI/badge.svg)](https://github.com/USERNAME/merge-sat/actions/workflows/ci.yml)
-[![Security](https://github.com/USERNAME/merge-sat/workflows/Security%20and%20Dependencies/badge.svg)](https://github.com/USERNAME/merge-sat/actions/workflows/security.yml)
-[![Documentation](https://github.com/USERNAME/merge-sat/workflows/Documentation/badge.svg)](https://github.com/USERNAME/merge-sat/actions/workflows/docs.yml)
+[![CI](https://github.com/USERNAME/muffler/workflows/CI/badge.svg)](https://github.com/USERNAME/muffler/actions/workflows/ci.yml)
+[![Security](https://github.com/USERNAME/muffler/workflows/Security%20and%20Dependencies/badge.svg)](https://github.com/USERNAME/muffler/actions/workflows/security.yml)
+[![Documentation](https://github.com/USERNAME/muffler/workflows/Documentation/badge.svg)](https://github.com/USERNAME/muffler/actions/workflows/docs.yml)
 ```
 
 ## Setup Instructions

@@ -1,7 +1,5 @@
 # Local configuration files
-tex/merge-sat.pdf
-data/problems
-data/solutions
+tex/muffler.pdf
 
 ################################################################################
 # Rust

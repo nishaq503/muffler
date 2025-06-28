@@ -1,4 +1,4 @@
-"""A sample test for the merge_sat package."""
+"""A sample test for the package."""
 
 
 def test_sample() -> None:

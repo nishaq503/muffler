@@ -25,7 +25,7 @@ members = [
 ]
 
 [tool.uv.sources]
-merge-sat = { workspace = true }
+muffler = { workspace = true }
 
 [tool.mypy]
 disable_error_code = ["import-untyped"]

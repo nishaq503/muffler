@@ -1,4 +1,4 @@
-//! CLI for the merge-sat crate
+//! CLI for the crate
 
 use std::path::PathBuf;
 
