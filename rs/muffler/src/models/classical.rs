@@ -5,10 +5,7 @@ use std::path::{Path, PathBuf};
 use ndarray::prelude::*;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use smartcore::{
-    api::SupervisedEstimator,
-    linalg::basic::{arrays::Array2, matrix::DenseMatrix},
-};
+use smartcore::{api::SupervisedEstimator, linalg::basic::matrix::DenseMatrix};
 
 /// A model that can be trained, evaluated, and used for prediction.
 ///
@@ -18,7 +15,7 @@ use smartcore::{
 /// * `P`: The type of the model parameters.
 pub trait Classical<M, P>: Sized + Send + Sync + Serialize + for<'de> Deserialize<'de>
 where
-    M: SupervisedEstimator<DenseMatrix<f32>, Array1<f32>, P> + Send + Sync,
+    M: SupervisedEstimator<DenseMatrix<f32>, Vec<f32>, P> + Send + Sync,
     P: Clone + Send + Sync,
 {
     /// Creates a new model.
@@ -53,7 +50,7 @@ where
             .into_par_iter()
             .map(|i| {
                 let (train_x, train_y) = crate::data::windows_to_train(&windows, i);
-                let train_x = DenseMatrix::from_slice(&train_x);
+                let train_x = DenseMatrix::from_2d_vec(&train_x).map_err(|e| e.to_string())?;
                 M::fit(&train_x, &train_y, parameters.clone()).map_err(|e| e.to_string())
             })
             .collect::<Result<Vec<_>, _>>()?;
@@ -79,11 +76,14 @@ where
             .into_par_iter()
             .map(|i| {
                 let (test_x, _) = crate::data::windows_to_train(&windows, i);
-                let test_x = DenseMatrix::from_slice(&test_x);
+                let test_x = DenseMatrix::from_2d_vec(&test_x).map_err(|e| e.to_string())?;
                 let model = &self.models()[i];
                 M::predict(model, &test_x).map_err(|e| e.to_string())
             })
             .collect::<Result<Vec<_>, _>>()?;
+
+        // Convert the predicted nested vectors into an 2d-array.
+        let predicted = predicted.into_iter().map(Array1::from_vec).collect::<Vec<_>>();
         let predicted = predicted.iter().map(ArrayBase::view).collect::<Vec<_>>();
         let predicted = ndarray::stack(Axis(1), &predicted).map_err(|e| e.to_string())?;
 

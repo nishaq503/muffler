@@ -8,7 +8,7 @@ use smartcore::{
 
 /// A Decision Tree model.
 #[allow(clippy::upper_case_acronyms)]
-type DTR = DecisionTreeRegressor<f32, f32, DenseMatrix<f32>, ndarray::Array1<f32>>;
+type DTR = DecisionTreeRegressor<f32, f32, DenseMatrix<f32>, Vec<f32>>;
 
 /// A model for denoising time-series data based on linear regression.
 #[derive(Serialize, Deserialize)]

@@ -1,6 +1,5 @@
 """Generate various kinds of time series data for the examples."""
 
-
 import numpy
 
 
@@ -69,8 +68,10 @@ def random_signals(  # noqa: PLR0913
         sign = 1 if len(clean_signals) % 2 == 0 else -1
         if add_linear_trend:
             # Construct a linear trend, and add it to the signal
-            linear_signal = (numpy.linspace(0, diff, x.size, dtype=numpy.float32) + diff) * 10
-            signal += (sign * linear_signal)
+            linear_signal = (
+                numpy.linspace(0, diff, x.size, dtype=numpy.float32) + diff
+            ) * 10
+            signal += sign * linear_signal
 
         clean_signals.append(signal)
 
@@ -84,3 +85,10 @@ def random_signals(  # noqa: PLR0913
     clean = numpy.array(clean_signals).astype(numpy.float32)
     noisy = numpy.array(noisy_signals).astype(numpy.float32)
     return clean, noisy
+
+
+__all__ = [
+    "sine_wave",
+    "summed_waves",
+    "random_signals",
+]

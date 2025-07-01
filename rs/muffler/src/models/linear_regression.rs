@@ -8,7 +8,7 @@ use smartcore::{
 
 /// A Linear Regression model.
 #[allow(clippy::upper_case_acronyms)]
-type LR = LinearRegression<f32, f32, DenseMatrix<f32>, ndarray::Array1<f32>>;
+type LR = LinearRegression<f32, f32, DenseMatrix<f32>, Vec<f32>>;
 
 /// A model for denoising time-series data based on linear regression.
 #[derive(Serialize, Deserialize)]

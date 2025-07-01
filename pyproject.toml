@@ -30,3 +30,8 @@ muffler = { workspace = true }
 
 [tool.mypy]
 disable_error_code = ["import-untyped"]
+
+[dependency-groups]
+dev = [
+    "plotly-stubs>=0.0.5",
+]

@@ -2,11 +2,12 @@
 
 import time
 
-import data  # type: ignore[import]
-import muffler
 import numpy
-import plots  # type: ignore[import]
 import streamlit as st
+
+import muffler
+
+from . import data, plots
 
 st.title("Muffler")
 

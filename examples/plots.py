@@ -59,7 +59,10 @@ def plot_errors(
     fig = go.Figure()
     fig.add_histogram(x=clean_v_noisy, name="noisy", marker_color="red", nbinsx=100)
     fig.add_histogram(
-        x=clean_v_denoised, name="denoised", marker_color="blue", nbinsx=100,
+        x=clean_v_denoised,
+        name="denoised",
+        marker_color="blue",
+        nbinsx=100,
     )
     fig.update_layout(
         title="Distribution of RMSE vs Clean signal",
@@ -67,3 +70,9 @@ def plot_errors(
         yaxis_title="Probability Density",
     )
     return fig
+
+
+__all__ = [
+    "plot_signals",
+    "plot_errors",
+]

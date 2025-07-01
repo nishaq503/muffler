@@ -49,7 +49,7 @@ pub fn create_windows(samples: &Array2<f32>, window_size: usize, stride: usize) 
 ///
 /// * The training data.
 /// * The target data.
-pub fn windows_to_train(windows: &[ArrayView2<f32>], index: usize) -> (Array2<f32>, Array1<f32>) {
+pub fn windows_to_train(windows: &[ArrayView2<f32>], index: usize) -> (Vec<Vec<f32>>, Vec<f32>) {
     let window_size = windows[0].len_of(Axis(1));
     let train = windows
         .iter()
@@ -66,20 +66,20 @@ pub fn windows_to_train(windows: &[ArrayView2<f32>], index: usize) -> (Array2<f3
             }
         })
         .collect::<Vec<_>>();
+    let train = train.iter().map(ArrayBase::view).collect::<Vec<_>>();
+    let train = ndarray::concatenate(Axis(0), &train)
+        .unwrap_or_else(|_| unreachable!("We made the arrays, so they should have the correct shape."));
+    let train = train.axis_iter(Axis(0)).map(|col| col.to_vec()).collect::<Vec<_>>();
 
     let target = windows
         .iter()
         .map(|w| w.index_axis(Axis(1), index).to_owned())
         .collect::<Vec<_>>();
-
-    let train = train.iter().map(ArrayBase::view).collect::<Vec<_>>();
     let target = target.iter().map(ArrayBase::view).collect::<Vec<_>>();
-
-    let train = ndarray::concatenate(Axis(0), &train)
-        .unwrap_or_else(|_| unreachable!("We made the arrays, so they should have the correct shape."));
     let target = ndarray::concatenate(Axis(0), &target)
         .unwrap_or_else(|_| unreachable!("We made the arrays, so they should have the correct shape."));
-    (train, target)
+
+    (train, target.to_vec())
 }
 
 /// Converts a the predictions from models into the time-series.
@@ -171,20 +171,22 @@ mod tests {
         let windows = windows.iter().map(ArrayBase::view).collect::<Vec<_>>();
 
         let (train, target) = windows_to_train(&windows, 0);
-        let expected_train = array![[2., 3.], [7., 8.], [3., 4.], [8., 9.], [4., 5.], [9., 10.]];
-        let expected_target = array![1., 6., 2., 7., 3., 8.];
+        // left: [[2.0, 7.0, 3.0, 8.0, 4.0, 9.0], [3.0, 8.0, 4.0, 9.0, 5.0, 10.0]]
+        // right: [[2.0, 3.0], [7.0, 8.0], [3.0, 4.0], [8.0, 9.0], [4.0, 5.0], [9.0, 10.0]]
+        let expected_train = vec![[2., 3.], [7., 8.], [3., 4.], [8., 9.], [4., 5.], [9., 10.]];
+        let expected_target = vec![1., 6., 2., 7., 3., 8.];
         assert_eq!(train, expected_train);
         assert_eq!(target, expected_target);
 
         let (train, target) = windows_to_train(&windows, 1);
-        let expected_train = array![[1., 3.], [6., 8.], [2., 4.], [7., 9.], [3., 5.], [8., 10.]];
-        let expected_target = array![2., 7., 3., 8., 4., 9.];
+        let expected_train = vec![[1., 3.], [6., 8.], [2., 4.], [7., 9.], [3., 5.], [8., 10.]];
+        let expected_target = vec![2., 7., 3., 8., 4., 9.];
         assert_eq!(train, expected_train);
         assert_eq!(target, expected_target);
 
         let (train, target) = windows_to_train(&windows, 2);
-        let expected_train = array![[1., 2.], [6., 7.], [2., 3.], [7., 8.], [3., 4.], [8., 9.]];
-        let expected_target = array![3., 8., 4., 9., 5., 10.];
+        let expected_train = vec![[1., 2.], [6., 7.], [2., 3.], [7., 8.], [3., 4.], [8., 9.]];
+        let expected_target = vec![3., 8., 4., 9., 5., 10.];
         assert_eq!(train, expected_train);
         assert_eq!(target, expected_target);
 
@@ -192,20 +194,20 @@ mod tests {
         let windows = windows.iter().map(ArrayBase::view).collect::<Vec<_>>();
 
         let (train, target) = windows_to_train(&windows, 0);
-        let expected_train = array![[2., 3.], [7., 8.], [4., 5.], [9., 10.]];
-        let expected_target = array![1., 6., 3., 8.];
+        let expected_train = vec![[2., 3.], [7., 8.], [4., 5.], [9., 10.]];
+        let expected_target = vec![1., 6., 3., 8.];
         assert_eq!(train, expected_train);
         assert_eq!(target, expected_target);
 
         let (train, target) = windows_to_train(&windows, 1);
-        let expected_train = array![[1., 3.], [6., 8.], [3., 5.], [8., 10.]];
-        let expected_target = array![2., 7., 4., 9.];
+        let expected_train = vec![[1., 3.], [6., 8.], [3., 5.], [8., 10.]];
+        let expected_target = vec![2., 7., 4., 9.];
         assert_eq!(train, expected_train);
         assert_eq!(target, expected_target);
 
         let (train, target) = windows_to_train(&windows, 2);
-        let expected_train = array![[1., 2.], [6., 7.], [3., 4.], [8., 9.]];
-        let expected_target = array![3., 8., 5., 10.];
+        let expected_train = vec![[1., 2.], [6., 7.], [3., 4.], [8., 9.]];
+        let expected_target = vec![3., 8., 5., 10.];
         assert_eq!(train, expected_train);
         assert_eq!(target, expected_target);
     }
@@ -226,6 +228,7 @@ mod tests {
                 let (windows, starts) = create_windows(&samples, window_size, stride);
                 let targets = (0..window_size)
                     .map(|i| windows_to_train(&windows, i).1)
+                    .map(Array1::from_vec)
                     .collect::<Vec<_>>();
                 let targets = targets.iter().map(ArrayBase::view).collect::<Vec<_>>();
                 let targets = ndarray::stack(Axis(1), &targets).map_err(|e| e.to_string())?;
@@ -259,6 +262,7 @@ mod tests {
 
                 let targets = (0..window_size)
                     .map(|i| windows_to_train(&windows, i).1)
+                    .map(Array1::from_vec)
                     .collect::<Vec<_>>();
                 let targets = targets.iter().map(ArrayBase::view).collect::<Vec<_>>();
                 let targets = ndarray::stack(Axis(1), &targets).map_err(|e| e.to_string())?;
