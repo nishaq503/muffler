@@ -7,7 +7,8 @@ import streamlit as st
 
 import muffler
 
-from . import data, plots
+import data
+import plots
 
 st.title("Muffler")
 

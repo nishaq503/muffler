@@ -61,13 +61,7 @@ jobs:
           cache-key-suffix: 'python-tests'
 
       - name: Run Python tests
-        run: |
-          echo "Running Python tests"
-          for dir in $(find . -name pyproject.toml -not -path "./pyproject.toml" -exec dirname {} \;); do
-            echo "Running tests in $dir"
-            cd "$dir" && uv run pytest ./**/*.py --verbose
-            cd - > /dev/null
-          done
+        run: uv run pytest
 
   # Build check
   build:
