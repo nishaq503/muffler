@@ -3,12 +3,11 @@
 import time
 
 import numpy
+import plots  # type: ignore[import-not-found]
 import streamlit as st
 
-import muffler
-
 import data
-import plots
+import muffler
 
 st.title("Muffler")
 
@@ -26,7 +25,7 @@ amp_range = (10.0, 100.0)
 offset_range = (-0.25 * numpy.pi, 0.25 * numpy.pi)
 
 x = numpy.linspace(0, 2 * numpy.pi, sample_len)
-clean, noisy = data.random_signals(
+clean, noisy = data.random_signals(  # type: ignore[attr-defined]
     x=x,
     num_samples=sample_num,
     freq_choices=freq_choices,
